@@ -25,108 +25,99 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import { useNavigation } from "@/stores/navigation"
+import type { NavItem } from "@/types/navigation"
+
 
 // This is sample data.
 const data = {
   user: {
-    name: "admin",
-    email: "cyberS7@mail.ru",
+    name: "shadcn",
+    email: "m@example.com",
     avatar: "/avatars/shadcn.jpg",
   },
   teams: [
     {
-      name: "Romart",
+      name: "Acme Inc",
       logo: GalleryVerticalEnd,
-      plan: "ИП Romart",
+      plan: "Enterprise",
     },
     {
-      name: "Mebel Alex",
+      name: "Acme Corp.",
       logo: AudioWaveform,
-      plan: "ИП Демьяненко",
+      plan: "Startup",
     },
     {
-      name: "Mebem VvV",
+      name: "Evil Corp.",
       logo: Command,
-      plan: "ИП Трефилов",
+      plan: "Free",
     },
   ],
   navMain: [
     {
-      title: "Заяки",
+      title: "Playground",
       url: "#",
       icon: SquareTerminal,
       isActive: true,
       items: [
         {
-          title: "Все заявки",
+          title: "History",
           url: "#",
         },
         {
-          title: "Отклоненные",
+          title: "Starred",
+          url: "#",
+        },
+        {
+          title: "Settings",
           url: "#",
         },
       ],
     },
     {
-      title: "Заказы",
+      title: "Models",
       url: "#",
       icon: Bot,
       items: [
         {
-          title: "В работе",
+          title: "Genesis",
           url: "#",
         },
         {
-          title: "Завершенные",
+          title: "Explorer",
           url: "#",
         },
         {
-          title: "На просрочке",
+          title: "Quantum",
           url: "#",
         },
       ],
     },
     {
-      title: "Каталоги",
+      title: "Documentation",
       url: "#",
       icon: BookOpen,
       items: [
         {
-          title: "Каталог ЛДСП",
+          title: "Introduction",
           url: "#",
         },
         {
-          title: "Каталог МДФ",
+          title: "Get Started",
           url: "#",
         },
         {
-          title: "Фурнитура",
+          title: "Tutorials",
           url: "#",
         },
         {
-          title: "Профили",
-          url: "#",
-        },
-        {
-          title: "Стекло и зеркала",
-          url: "#",
-        },
-        {
-          title: "Электрика",
-          url: "#",
-        },
-        {
-          title: "Вентиляция",
-          url: "#",
-        },
-        {
-          title: "Столешницы",
+          title: "Changelog",
           url: "#",
         },
       ],
     },
     {
-      title: "Настройки",
+      title: "Settings",
       url: "#",
       icon: Settings2,
       items: [
@@ -151,31 +142,77 @@ const data = {
   ],
   projects: [
     {
-      name: "Romart",
+      name: "Design Engineering",
       url: "#",
       icon: Frame,
     },
     {
-      name: "Mebel Alex",
+      name: "Sales & Marketing",
       url: "#",
       icon: PieChart,
     },
     {
-      name: "Mebel VVV",
+      name: "Travel",
       url: "#",
       icon: Map,
     },
   ],
 }
 
+// Icon mapping
+const iconMap: Record<string, React.ComponentType<any>> = {
+  AudioWaveform,
+  BookOpen,
+  Bot,
+  Command,
+  Frame,
+  GalleryVerticalEnd,
+  Map,
+  PieChart,
+  Settings2,
+  SquareTerminal,
+}
+
+// Transform NavItem to match NavMain expected format
+const transformNavItem = (item: NavItem): any => {
+  return {
+    ...item,
+    icon: item.icon ? iconMap[item.icon] : undefined,
+    items: item.items?.map(subItem => ({
+      ...subItem,
+      url: subItem.url || '#'
+    }))
+  }
+}
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { items, load, loading } = useNavigation()
+  
+  // Load navigation data when component mounts
+  React.useEffect(() => {
+    load()
+  }, [load])
+
+  // Transform items to match NavMain expected format
+  const transformedItems = React.useMemo(() => {
+    return items.map(item => ({
+      ...transformNavItem(item),
+      url: item.url || '#',
+      isActive: item.isActive || false
+    }))
+  }, [items])
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        {loading ? (
+          <div className="p-4">Loading...</div>
+        ) : (
+          <NavMain items={transformedItems} />
+        )}
         <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>

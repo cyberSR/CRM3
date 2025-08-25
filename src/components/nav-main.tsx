@@ -22,8 +22,9 @@ export function NavMain({
   items,
 }: {
   items: {
+    id: string
     title: string
-    url: string
+    url?: string
     icon?: LucideIcon
     isActive?: boolean
     items?: {
@@ -34,7 +35,7 @@ export function NavMain({
 }) {
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Проекты</SidebarGroupLabel>
+      <SidebarGroupLabel>Platform</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
           <Collapsible
@@ -56,7 +57,7 @@ export function NavMain({
                   {item.items?.map((subItem) => (
                     <SidebarMenuSubItem key={subItem.title}>
                       <SidebarMenuSubButton asChild>
-                        <a href={subItem.url}>
+                        <a href={subItem.url || '#'}>
                           <span>{subItem.title}</span>
                         </a>
                       </SidebarMenuSubButton>

@@ -14,5 +14,5 @@ export default defineConfig({
       '@modules': path.resolve(__dirname, 'src/modules')
     }
   },
-  server: { port: 5173 }
+  server: { port: 5173, proxy: { '/api': 'http://localhost:4000' } }
 })
