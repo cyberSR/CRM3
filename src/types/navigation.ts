@@ -1,9 +1,8 @@
-export type NavItem = {
+export type NavigationItem = {
   id: string
   title: string
-  url?: string
-  icon?: string
-  isActive: boolean
-  items?: NavItem[]
+  href?: string
+  icon?: string        // из БД строка, напр. "Home" или "Settings2"
+  isActive?: boolean
+  items?: NavigationItem[]
 }
-export type NavResponse = { items: NavItem[] }

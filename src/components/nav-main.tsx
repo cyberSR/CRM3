@@ -1,6 +1,9 @@
 "use client"
 
-import { ChevronRight, type LucideIcon } from "lucide-react"
+import * as React from "react"
+import { ChevronRight, Circle } from "lucide-react"
+import dynamicIconImports from "lucide-react/dynamicIconImports"
+import type { NavigationItem } from "@/types/navigation"
 
 import {
   Collapsible,
@@ -18,28 +21,29 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
 
-export function NavMain({
-  items,
-}: {
-  items: {
-    id: string
-    title: string
-    url?: string
-    icon?: LucideIcon
-    isActive?: boolean
-    items?: {
-      title: string
-      url: string
-    }[]
-  }[]
-}) {
+function renderIcon(icon?: string) {
+  if (!icon) return null
+  const importFn =
+    (dynamicIconImports as any)[icon] ||
+    (dynamicIconImports as any)[icon + "Icon"]
+  if (!importFn) return <Circle className="h-4 w-4" />
+
+  const Lazy = React.lazy(importFn)
+  return (
+    <React.Suspense fallback={<Circle className="h-4 w-4" />}>
+      <Lazy className="h-4 w-4" />
+    </React.Suspense>
+  )
+}
+
+export function NavMain({ items }: { items: NavigationItem[] }) {
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Platform</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
           <Collapsible
-            key={item.title}
+            key={item.id ?? item.title}
             asChild
             defaultOpen={item.isActive}
             className="group/collapsible"
@@ -47,18 +51,18 @@ export function NavMain({
             <SidebarMenuItem>
               <CollapsibleTrigger asChild>
                 <SidebarMenuButton tooltip={item.title}>
-                  {item.icon && <item.icon />}
+                  {renderIcon(item.icon)}
                   <span>{item.title}</span>
                   <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                 </SidebarMenuButton>
               </CollapsibleTrigger>
               <CollapsibleContent>
                 <SidebarMenuSub>
-                  {item.items?.map((subItem) => (
-                    <SidebarMenuSubItem key={subItem.title}>
+                  {item.items?.map((sub) => (
+                    <SidebarMenuSubItem key={sub.id ?? sub.title}>
                       <SidebarMenuSubButton asChild>
-                        <a href={subItem.url || '#'}>
-                          <span>{subItem.title}</span>
+                        <a href={sub.href ?? "#"}>
+                          <span>{sub.title}</span>
                         </a>
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>
